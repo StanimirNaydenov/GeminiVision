@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini Multimodal Vision — Интегриране на приложения с ИИ (ФМИ, ПУ)</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --accent-light: rgba(59, 130, 246, 0.15);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .brand h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.25rem;
+        }
+
+        .brand p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: var(--accent-light);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1.15fr;
+            gap: 1.75rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        }
+
+            .card h2 {
+                font-size: 1.2rem;
+                margin-bottom: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                border-bottom: 1px solid var(--card-border);
+                padding-bottom: 0.75rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #cbd5e1;
+        }
+
+        .upload-zone {
+            border: 2px dashed #475569;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+            .upload-zone:hover, .upload-zone.dragover {
+                border-color: var(--accent);
+                background: var(--accent-light);
+            }
+
+            .upload-zone input[type="file"] {
+                display: block;
+                margin: 0.75rem auto 0;
+                color: var(--text-muted);
+                font-size: 0.88rem;
+            }
+
+        .sample-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.65rem;
+        }
+
+        .btn-sample {
+            background: #334155;
+            color: #e2e8f0;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 0.4rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+            .btn-sample:hover {
+                background: #475569;
+            }
+
+        select, textarea {
+            width: 100%;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 10px;
+            padding: 0.75rem;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-family: inherit;
+        }
+
+            select:focus, textarea:focus {
+                outline: none;
+                border-color: var(--accent);
+            }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .preview-box {
+            margin-top: 1rem;
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 0.75rem;
+            text-align: center;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .preview-box img {
+                max-width: 100%;
+                max-height: 240px;
+                border-radius: 8px;
+                display: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            }
+
+        .upload-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .upload-pair {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .comparison-note {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .btn-compare {
+            width: 100%;
+            margin-top: 0.75rem;
+            background: linear-gradient(90deg, #059669, #0d9488);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.9rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+            .btn-compare:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
+
+        .preview-placeholder {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(90deg, #3b82f6, #6366f1);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0.9rem 1.25rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+            .btn-submit:hover {
+                opacity: 0.95;
+            }
+
+            .btn-submit:disabled {
+                opacity: 0.55;
+                cursor: not-allowed;
+            }
+
+        .meta-bar {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .meta-pill {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.82rem;
+            color: #cbd5e1;
+        }
+
+            .meta-pill strong {
+                color: #60a5fa;
+            }
+
+        .result-box {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            min-height: 330px;
+            white-space: pre-wrap;
+            font-size: 0.96rem;
+            color: #e2e8f0;
+            overflow-y: auto;
+            max-height: 540px;
+        }
+
+        .status-banner {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: none;
+        }
+
+            .status-banner.success {
+                display: block;
+                background: rgba(16, 185, 129, 0.15);
+                border: 1px solid rgba(16, 185, 129, 0.4);
+                color: #6ee7b7;
+            }
+
+            .status-banner.error {
+                display: block;
+                background: rgba(239, 68, 68, 0.15);
+                border: 1px solid rgba(239, 68, 68, 0.4);
+                color: #fca5a5;
+            }
+
+            .status-banner.loading {
+                display: block;
+                background: rgba(59, 130, 246, 0.15);
+                border: 1px solid rgba(59, 130, 246, 0.4);
+                color: #93c5fd;
+            }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="brand">
+                <h1>Gemini Multimodal Vision Studio (.NET 8)</h1>
+                <p>Избираема дисциплина „Интегриране на приложения с ИИ" • ФМИ към ПУ „Паисий Хилендарски" • гл. ас. д-р Георги Пашев</p>
+            </div>
+            <div class="badge-group">
+                <span class="badge">ASP.NET Core 8 Web API</span>
+                <span class="badge">Google AI Studio (Gemini 2.5)</span>
+                <span class="badge">Multimodal Vision</span>
+            </div>
+        </header>
+
+        <div class="grid">
+            <!-- Лява колона: Входни данни -->
+            <div class="card">
+                <h2>1. Качване на изображения и настройка на заявката</h2>
+                <form id="visionForm">
+                    <div class="form-group">
+                        <label>Изберете едно изображение за анализ или две изображения за сравнение (PNG, JPEG, WEBP, GIF):</label>
+                        <div class="upload-pair">
+                            <div>
+                                <label for="imageInput">Първо изображение</label>
+                                <div class="upload-zone" id="dropZone">
+                                    <div>Изберете първото изображение</div>
+                                    <input type="file" id="imageInput" name="image" accept="image/png,image/jpeg,image/webp,image/gif" />
+                                </div>
+                                <div class="preview-box">
+                                    <span class="preview-placeholder" id="previewPlaceholder">Няма избрано първо изображение</span>
+                                    <img id="imagePreview" alt="Преглед на първото изображение" />
+                                </div>
+                            </div>
+                            <div>
+                                <label for="imageInput2">Второ изображение</label>
+                                <div class="upload-zone">
+                                    <div>Изберете второто изображение</div>
+                                    <input type="file" id="imageInput2" name="image2" accept="image/png,image/jpeg,image/webp,image/gif" />
+                                </div>
+                                <div class="preview-box">
+                                    <span class="preview-placeholder" id="previewPlaceholder2">Няма избрано второ изображение</span>
+                                    <img id="imagePreview2" alt="Преглед на второто изображение" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sample-buttons">
+                            <button type="button" class="btn-sample" id="btnSampleArchitecture">Генерирай примерна схема: ИИ Архитектура</button>
+                            <button type="button" class="btn-sample" id="btnSampleShapes">Генерирай примерна снимка: Геометрични обекти</button>
+                        </div>
+                        <p class="comparison-note">За обикновен анализ е достатъчно първото изображение. За сравнение трябва да изберете и второто.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modelSelect">Модел на Google Gemini:</label>
+                        <select id="modelSelect" name="model">
+                            <option value="gemini-2.5-flash" selected>gemini-2.5-flash (Бърз мултимодален модел)</option>
+                            <option value="gemini-3.1-pro-preview">gemini-3.1-pro-preview (Висока прецизност и логика)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="promptInput">Текстово задание (Prompt) към ИИ модела:</label>
+                        <textarea id="promptInput" name="prompt">Опиши подробно какво се вижда на това изображение на български език. Посочи основните обекти, цветове, надписи и цялостния контекст.</textarea>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="analyzeBtn" data-action="analyze">
+                        <span>Анализирай първото изображение</span>
+                    </button>
+                    <button type="submit" class="btn-compare" id="compareBtn" data-action="compare">
+                        Сравни двете изображения
+                    </button>
+                </form>
+            </div>
+
+            <!-- Дясна колона: Резултат -->
+            <div class="card">
+                <h2>2. Резултат от мултимодалния анализ</h2>
+
+                <div id="statusBanner" class="status-banner"></div>
+
+                <div class="meta-bar" id="metaBar">
+                    <div class="meta-pill">Модел: <strong id="metaModel">—</strong></div>
+                    <div class="meta-pill">Време за отговор: <strong id="metaTime">—</strong></div>
+                    <div class="meta-pill">Размер на файла: <strong id="metaSize">—</strong></div>
+                    <div class="meta-pill">Формат: <strong id="metaMime">—</strong></div>
+                </div>
+
+                <div class="result-box" id="resultOutput">Тук ще се появи генерираното от Google Gemini описание на качената снимка...</div>
+            </div>
+        </div>
+
+        <footer>
+            Учебен проект по „Интегриране на приложения с ИИ" • Пловдивски университет „Паисий Хилендарски", ФМИ
+        </footer>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imageInput2 = document.getElementById('imageInput2');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreview2 = document.getElementById('imagePreview2');
+        const previewPlaceholder = document.getElementById('previewPlaceholder');
+        const previewPlaceholder2 = document.getElementById('previewPlaceholder2');
+        const visionForm = document.getElementById('visionForm');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const compareBtn = document.getElementById('compareBtn');
+        const statusBanner = document.getElementById('statusBanner');
+        const resultOutput = document.getElementById('resultOutput');
+        const metaModel = document.getElementById('metaModel');
+        const metaTime = document.getElementById('metaTime');
+        const metaSize = document.getElementById('metaSize');
+        const metaMime = document.getElementById('metaMime');
+
+        let currentBlob = null;
+        let currentFileName = '';
+
+        function showPreview(fileOrBlob, previewElement, placeholderElement) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewElement.src = e.target.result;
+                previewElement.style.display = 'block';
+                placeholderElement.style.display = 'none';
+            };
+            reader.readAsDataURL(fileOrBlob);
+        }
+
+        imageInput.addEventListener('change', () => {
+            if (imageInput.files && imageInput.files[0]) {
+                currentBlob = null;
+                currentFileName = imageInput.files[0].name;
+                showPreview(imageInput.files[0], imagePreview, previewPlaceholder);
+            }
+        });
+
+        imageInput2.addEventListener('change', () => {
+            if (imageInput2.files && imageInput2.files[0]) {
+                showPreview(imageInput2.files[0], imagePreview2, previewPlaceholder2);
+            }
+        });
+
+        // Генериране на примерна схема чрез HTML5 Canvas за лесно тестване
+        function generateSampleImage(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 360;
+            const ctx = canvas.getContext('2d');
+
+            if (type === 'architecture') {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, 640, 360);
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillText('ASP.NET Core + Google Gemini AI Vision', 110, 45);
+
+                // Блок 1: Браузър клиент
+                ctx.fillStyle = '#1e40af';
+                ctx.fillRect(40, 110, 150, 120);
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(40, 110, 150, 120);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('Web Browser', 65, 160);
+                ctx.font = '13px sans-serif';
+                ctx.fillText('Upload Image + Prompt', 50, 190);
+
+                // Блок 2: ASP.NET API
+                ctx.fillStyle = '#065f46';
+                ctx.fillRect(245, 110, 150, 120);
+                ctx.strokeStyle = '#34d399';
+                ctx.strokeRect(245, 110, 150, 120);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('ASP.NET Core 8', 260, 160);
+                ctx.font = '13px sans-serif';
+                ctx.fillText('VisionController', 272, 190);
+
+                // Блок 3: Gemini AI
+                ctx.fillStyle = '#5b21b6';
+                ctx.fillRect(450, 110, 150, 120);
+                ctx.strokeStyle = '#a78bfa';
+                ctx.strokeRect(450, 110, 150, 120);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillText('Google Gemini', 468, 160);
+                ctx.font = '13px sans-serif';
+                ctx.fillText('Multimodal API', 480, 190);
+
+                // Стрелки
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(195, 170);
+                ctx.lineTo(240, 170);
+                ctx.moveTo(400, 170);
+                ctx.lineTo(445, 170);
+                ctx.stroke();
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '15px sans-serif';
+                ctx.fillText('ФМИ • ПУ „Паисий Хилендарски" • Упражнение по ИИ', 135, 310);
+            } else {
+                ctx.fillStyle = '#fefce8';
+                ctx.fillRect(0, 0, 640, 360);
+
+                // Червен кръг
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.arc(140, 170, 70, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Син квадрат
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(260, 100, 130, 130);
+
+                // Зелен триъгълник
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.moveTo(510, 95);
+                ctx.lineTo(440, 235);
+                ctx.lineTo(580, 235);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#1e293b';
+                ctx.font = 'bold 22px sans-serif';
+                ctx.fillText('Тестови геометрични фигури: Кръг, Квадрат, Триъгълник', 45, 50);
+            }
+
+            canvas.toBlob((blob) => {
+                const fileName = type === 'architecture' ? 'ai-architecture-diagram.png' : 'geometric-shapes.png';
+                const file = new File([blob], fileName, { type: 'image/png' });
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                imageInput.files = dt.files;
+                currentBlob = file;
+                currentFileName = fileName;
+                showPreview(file, imagePreview, previewPlaceholder);
+            }, 'image/png');
+        }
+
+        document.getElementById('btnSampleArchitecture').addEventListener('click', () => generateSampleImage('architecture'));
+        document.getElementById('btnSampleShapes').addEventListener('click', () => generateSampleImage('shapes'));
+
+        visionForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const action = e.submitter?.dataset.action || 'analyze';
+            const firstFile = (imageInput.files && imageInput.files[0])
+                ? imageInput.files[0]
+                : currentBlob;
+            const secondFile = imageInput2.files && imageInput2.files[0]
+                ? imageInput2.files[0]
+                : null;
+
+            if (!firstFile) {
+                statusBanner.className = 'status-banner error';
+                statusBanner.textContent = 'Моля, изберете първото изображение.';
+                return;
+            }
+
+            if (action === 'compare' && !secondFile) {
+                statusBanner.className = 'status-banner error';
+                statusBanner.textContent = 'За сравнение трябва да изберете и второто изображение.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', firstFile, firstFile.name || currentFileName || 'image1.png');
+            formData.append('prompt', document.getElementById('promptInput').value);
+            formData.append('model', document.getElementById('modelSelect').value);
+
+            let endpoint = '/api/vision/analyze';
+            let operationText = 'Анализиране на изображението...';
+
+            if (action === 'compare') {
+                formData.append('image1', firstFile, firstFile.name || 'image1.png');
+                formData.append('image2', secondFile, secondFile.name || 'image2.png');
+                formData.delete('image');
+                endpoint = '/api/vision/compare';
+                operationText = 'Сравняване на двете изображения...';
+            }
+
+            analyzeBtn.disabled = true;
+            compareBtn.disabled = true;
+            statusBanner.className = 'status-banner loading';
+            statusBanner.textContent = action === 'compare'
+                ? 'Изпращане на двете изображения към Google Gemini API... Моля, изчакайте.'
+                : 'Изпращане на изображението към Google Gemini API... Моля, изчакайте.';
+            resultOutput.textContent = operationText;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+
+                let data;
+
+                try {
+                    data = responseText ? JSON.parse(responseText) : {};
+                } catch (error) {
+                    throw new Error(
+                        `Сървърът върна невалиден JSON. HTTP статус: ${response.status}. Отговор: ${responseText || 'Празен отговор'}`
+                    );
+                }
+
+                if (!response.ok && !data.errorMessage) {
+                    data.errorMessage = `Грешка от сървъра. HTTP статус: ${response.status}`;
+                }
+
+                metaModel.textContent = data.modelUsed || document.getElementById('modelSelect').value;
+                metaTime.textContent = data.elapsedMilliseconds != null
+                    ? `${data.elapsedMilliseconds} ms`
+                    : '—';
+                metaSize.textContent = data.imageSizeBytes
+                    ? `${(data.imageSizeBytes / 1024).toFixed(1)} KB`
+                    : (action === 'compare'
+                        ? `${((firstFile.size + secondFile.size) / 1024).toFixed(1)} KB общо`
+                        : '—');
+                metaMime.textContent = data.mimeType || (action === 'compare'
+                    ? `${firstFile.type || 'image'} + ${secondFile.type || 'image'}`
+                    : firstFile.type || '—');
+
+                if (response.ok && data.success) {
+                    statusBanner.className = 'status-banner success';
+                    statusBanner.textContent = action === 'compare'
+                        ? 'Сравнението завърши успешно!'
+                        : 'Анализът завърши успешно!';
+                    resultOutput.textContent = data.description;
+                } else {
+                    statusBanner.className = 'status-banner error';
+                    statusBanner.textContent = data.errorMessage || 'Възникна грешка при обработката.';
+                    resultOutput.textContent = data.errorMessage || 'Неуспешна обработка.';
+                }
+            } catch (err) {
+                statusBanner.className = 'status-banner error';
+                statusBanner.textContent = 'Мрежова грешка при връзка със сървъра: ' + err.message;
+                resultOutput.textContent = 'Грешка: ' + err.message;
+            } finally {
+                analyzeBtn.disabled = false;
+                compareBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
